@@ -30,9 +30,9 @@ ImageData.prototype.getPix = function (x, y) {
 var srcData, ctx, img;
 var spiral = {
     r: 300,
-    spirals: 60,
-    period: 300,
-    progress: 0,
+    spirals: 50,
+    period: 200,
+    progress: 200,
     dr: 0,
     x: 300,
     y: 300
@@ -43,6 +43,7 @@ var oldx = 300, oldy = 300;
 
 function init() {
     ctx = document.getElementById('paper').getContext('2d');
+    ctx.lineCap = 'round';
     img = new Image();
     img.src = 'default.jpeg';
     var src = document.createElement('canvas');
@@ -56,12 +57,13 @@ function init() {
 }
 
 function step(time, delta) {
+    delta = delta < 30 ? delta : 20; 
     var sr = spiral.r / spiral.spirals;
     var rev = spiral.progress / spiral.period;
     var dr = sr * rev;
     var x = dr * Math.sin(pi2 * rev) + spiral.x;
     var y = dr * Math.cos(pi2 * rev) + spiral.y;
-    var c = dr*pi2 || 1;
+    var c = dr*pi2;
     spiral.progress += 100*(delta/c);
     var rgba = srcData.getPix(x | 0, y | 0);
     var brightness;
@@ -70,12 +72,11 @@ function step(time, delta) {
     } else {
         brightness = 255;
     }
-    ctx.lineWidth = 5 - (4 * brightness);
+    ctx.lineWidth = sr - ((sr-1) * brightness);
     ctx.beginPath();
     ctx.moveTo(oldx, oldy);
     ctx.lineTo(oldx = x, oldy = y);
     ctx.stroke();
-    //console.log(spiral.progress);
 }
 
 function loopsy() {

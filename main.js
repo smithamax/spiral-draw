@@ -29,8 +29,7 @@ ImageData.prototype.getPix = function (x, y) {
 
 var srcData, ctx, img;
 var spiral = {
-    r: 300,
-    spirals: 50,
+    density: 10,
     period: 200,
     progress: 200,
     dr: 0,
@@ -40,6 +39,14 @@ var spiral = {
 var time = Date.now();
 var pi2 = Math.PI * 2;
 var oldx = 300, oldy = 300;
+
+var reset = function () {
+    ctx.clearRect(0, 0, 600, 600);
+    spiral.progress = 200;
+    oldx = 300;
+    oldy = 300;
+    ctx.moveTo(spiral.x, spiral.y);
+};
 
 function init() {
     ctx = document.getElementById('paper').getContext('2d');
@@ -54,11 +61,18 @@ function init() {
     sctx.drawImage(img, 0, 0);
     srcData = sctx.getImageData(0,0,600,600);
 
+    var gui = new dat.GUI();
+
+    gui.add(spiral, 'density').min(5).max(20)
+    .onFinishChange(reset);
+    gui.add(spiral, 'period').min(150).max(1000)
+    .onFinishChange(reset);
+
 }
 
 function step(time, delta) {
     delta = delta < 30 ? delta : 20; 
-    var sr = spiral.r / spiral.spirals;
+    var sr = spiral.density;
     var rev = spiral.progress / spiral.period;
     var dr = sr * rev;
     var x = dr * Math.sin(pi2 * rev) + spiral.x;

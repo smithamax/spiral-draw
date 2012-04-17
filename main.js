@@ -27,51 +27,63 @@ ImageData.prototype.getPix = function (x, y) {
     return [r, g, b, a];
 };
 
+var paper = document.getElementById('paper');
+
+var img = new Image();
+
 var srcData, ctx, img;
 var spiral = {
     density: 10,
     period: 200,
     progress: 200,
     dr: 0,
-    x: 300,
-    y: 300
+    x: paper.width/2,
+    y: paper.height/2
 };
 var time = Date.now();
 var pi2 = Math.PI * 2;
-var oldx = 300, oldy = 300;
+var oldx = spiral.x, oldy = spiral.y;
 
 var reset = function () {
-    ctx.clearRect(0, 0, 600, 600);
+    ctx.clearRect(0, 0, paper.width, paper.height);
     spiral.progress = 200;
-    oldx = 300;
-    oldy = 300;
+    oldx = spiral.x;
+    oldy = spiral.y;
     ctx.moveTo(spiral.x, spiral.y);
 };
 
-function init() {
-    ctx = document.getElementById('paper').getContext('2d');
-    ctx.lineCap = 'round';
-    img = new Image();
-    img.src = 'default.jpeg';
+var setupSrc = function () {
     var src = document.createElement('canvas');
-    src.width = 600;
-    src.height = 600;
+    src.width = paper.width;
+    src.height = paper.height;
     //document.body.appendChild(src);
     var sctx = src.getContext('2d');
-    sctx.drawImage(img, 0, 0);
-    srcData = sctx.getImageData(0,0,600,600);
+    var imgx = (paper.width / 2) - (img.width / 2);
+    var imgy = (paper.height / 2) - (img.height / 2);
+    sctx.drawImage(img, imgx, imgy);
+    srcData = sctx.getImageData(0, 0, src.width, src.height);
+};
 
+img.onload = function(){
+    setupSrc();
+    reset();
+};
+
+function init() {
+    ctx = paper.getContext('2d');
+    ctx.lineCap = 'round';
+    img.src = 'default.jpeg';
+    setupSrc();
     var gui = new dat.GUI();
 
     gui.add(spiral, 'density').min(5).max(20)
     .onFinishChange(reset);
     gui.add(spiral, 'period').min(150).max(1000)
     .onFinishChange(reset);
-
 }
 
 function step(time, delta) {
-    delta = delta < 30 ? delta : 20; 
+    delta = delta < 30 ? delta : 20;
     var sr = spiral.density;
     var rev = spiral.progress / spiral.period;
     var dr = sr * rev;
@@ -104,3 +116,23 @@ window.onload = function () {
     init();
     loopsy();
 };
+
+if (typeof window.FileReader === 'undefined') {
+    console.log('Not file dragging for the person with the shit browser');
+} else {
+    paper.ondrop = function (e) {
+        e.preventDefault();
+
+        var file = e.dataTransfer.files[0],
+            reader = new FileReader();
+
+        reader.onload = function (event) {
+            console.log(event.target);
+            img.src = event.target.result;
+        };
+        console.log(file);
+        reader.readAsDataURL(file);
+
+        return false;
+    };
+}

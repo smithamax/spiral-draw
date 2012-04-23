@@ -117,11 +117,18 @@ window.onload = function () {
     loopsy();
 };
 
+function noopHandler (evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+
+}
+
 if (typeof window.FileReader === 'undefined') {
     console.log('Not file dragging for the person with the shit browser');
 } else {
-    paper.ondrop = function (e) {
-        e.preventDefault();
+    paper.addEventListener("dragover", noopHandler, false);
+    paper.addEventListener("drop", function (e) {
+        noopHandler(e);
 
         var file = e.dataTransfer.files[0],
             reader = new FileReader();
@@ -132,7 +139,5 @@ if (typeof window.FileReader === 'undefined') {
         };
         console.log(file);
         reader.readAsDataURL(file);
-
-        return false;
-    };
+    }, false);
 }

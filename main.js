@@ -9,21 +9,21 @@ window.requestAnimationFrame = (function () {
             };
 })();
 
-ImageData.prototype.setPix = function (x, y, rgbaArray) {
-    this.data[(y * this.width + x) * 4] = rgbaArray[0];
-    this.data[(y * this.width + x) * 4 + 1] = rgbaArray[1];
-    this.data[(y * this.width + x) * 4 + 2] = rgbaArray[2];
-    this.data[(y * this.width + x) * 4 + 3] = rgbaArray[3];
+setPix = function (imagedata, x, y, rgbaArray) {
+    imagedata.data[(y * imagedata.width + x) * 4] = rgbaArray[0];
+    imagedata.data[(y * imagedata.width + x) * 4 + 1] = rgbaArray[1];
+    imagedata.data[(y * imagedata.width + x) * 4 + 2] = rgbaArray[2];
+    imagedata.data[(y * imagedata.width + x) * 4 + 3] = rgbaArray[3];
 };
 
-ImageData.prototype.getPix = function (x, y) {
-    if (x >= this.width || y >= this.height) {
+getPix = function (imagedata, x, y) {
+    if (x >= imagedata.width || y >= imagedata.height) {
         return null;
     }
-    var r = this.data[(y * this.width + x) * 4];
-    var g = this.data[(y * this.width + x) * 4 + 1];
-    var b = this.data[(y * this.width + x) * 4 + 2];
-    var a = this.data[(y * this.width + x) * 4 + 3];
+    var r = imagedata.data[(y * imagedata.width + x) * 4];
+    var g = imagedata.data[(y * imagedata.width + x) * 4 + 1];
+    var b = imagedata.data[(y * imagedata.width + x) * 4 + 2];
+    var a = imagedata.data[(y * imagedata.width + x) * 4 + 3];
     return [r, g, b, a];
 };
 
@@ -91,7 +91,7 @@ function step(time, delta) {
     var y = dr * Math.cos(pi2 * rev) + spiral.y;
     var c = dr*pi2;
     spiral.progress += 100*(delta/c);
-    var rgba = srcData.getPix(x | 0, y | 0);
+    var rgba = getPix(srcData, x | 0, y | 0);
     var brightness;
     if (rgba) {
         brightness = (rgba[0] + rgba[1] + rgba[2])/ (3*255);
